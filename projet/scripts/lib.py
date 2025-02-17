@@ -6,7 +6,4 @@ if __name__ == '__main__':
 
 def simple_df():
     df = pd.DataFrame([['Alice', 25], ['Bob', 30]], columns=['Name', 'Age'])
-    print(df.head())
     return df
-
-simple_df()
