@@ -42,3 +42,6 @@ Thumbs.db
 
 #ignore scrapper file
 scrapper/
+
+#ignore google file
+august-voyage-390012-9a63e6007306.json
