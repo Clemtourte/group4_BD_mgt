@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
-Name: toto
+Name: scripts
 Version: 0.0.0
 Summary: package description
-
+Requires-Dist: pandas
