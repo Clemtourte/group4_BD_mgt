@@ -91,12 +91,29 @@
 - ctrl+c : arrête une commande en cours
 - Flèche haut : retrouve les commandes précédentes
 
+## Note sur les différents terminaux
+- CMD: Le terminal Windows classique
+- PowerShell: À éviter pour ce projet
+- Terminal Ubuntu (WSL): Celui qu'on utilise, reconnaissable par son prompt qui commence par votre nom d'utilisateur@
+- Terminal VS Code: S'assurer qu'il est bien en mode "Ubuntu" (visible en haut à droite du terminal)
+
   ## Workflow quotidien
   ### Au démarrage
-  - Ouvrir VS Code et un terminal Ubuntu
-  - Vérifier que vous êtes dans le bon dossier: cd group4_BD_mgt
-  - Mettre à jour le projet : git checkout main PUIS git pull origin main
-  - Vérifier que tout fonctionne : make run
+- Ouvrir VS Code et un terminal Ubuntu
+- Vérifier que vous êtes dans le bon dossier: cd group4_BD_mgt
+- Si pas déjà activé (le terminal ne montre pas (env) ou le nom de votre environnement au début) :
+  source env/bin/activate    # Le terminal devrait maintenant afficher (env) au début
+- Mettre à jour le projet : git checkout main PUIS git pull origin main
+- Vérifier que tout fonctionne : make run
+
+### Comment savoir si tout est bien configuré
+- Dans le terminal Ubuntu :
+  - (env) est visible au début de la ligne
+  - direnv: loading .envrc apparaît quand vous entrez dans le dossier
+  - pyenv local montre 3.12.1
+- Dans VS Code :
+  - L'interpréteur Python sélectionné correspond à votre env
+  - Pas de soulignements rouges dans les imports
 
   ### Pourquoi make run ?
   make run est essentiel au début de chaque session de travail car il :
