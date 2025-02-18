@@ -1,7 +1,0 @@
-pandas
-google-cloud-bigquery
-python-dotenv
-requests
-selenium
-ipykernel
-db-dtypes
