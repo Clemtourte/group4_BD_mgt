@@ -32,6 +32,7 @@ oauthlib==3.2.2
 packaging==24.2
 pandas==2.2.3
 parso==0.8.4
+matplotlib
 pexpect==4.9.0
 platformdirs==4.3.6
 prompt_toolkit==3.0.50
