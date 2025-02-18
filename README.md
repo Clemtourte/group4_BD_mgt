@@ -1,164 +1,179 @@
-# group4_BD_mgt
+  # Guide d'Installation et Configuration - BDM Project
+  ## Introduction
+  Ce guide fournit les informations pour installer et configurer l'environnement de développement.
 
-# Guide d'Installation et Configuration - BDM Project
+  ## Petit lexique pour débutants
+  - Terminal/CMD : La fenêtre noire où on tape des commandes (peut s'ouvrir directement depuis VScode, je recommande d'utiliser cmd et pas powershell, pour naviguer entre les fichiers utiliser "cd projet" par exemple)
+  - Repository (repo) : Le dossier du projet partagé sur GitHub
+  - Branch : Une version parallèle du code pour travailler sans affecter le projet principal
+  - Pull Request (PR) : Demande pour ajouter vos modifications au projet principal
+  - Kernel : L'environnement Python qui exécute votre code
+  - Environnement virtuel : Un Python isolé pour le projet
+  - WSL : Windows Subsystem for Linux - Permet d'utiliser Linux sur Windows
+  - direnv : Outil pour charger automatiquement les variables d'environnement
+  - pyenv : Gestionnaire de versions Python
 
-## Petit lexique pour débutants
-- Terminal/CMD : La fenêtre noire où on tape des commandes (peut s'ouvrir directement depuis VScode, je recommande d'utiliser cmd et pas powershell, pour naviguer entre les fichiers utiliser "cd projet" par exemple)
-- Repository (repo) : Le dossier du projet partagé sur GitHub
-- Branch : Une version parallèle du code pour travailler sans affecter le projet principal
-- Pull Request (PR) : Demande pour ajouter vos modifications au projet principal
-- Kernel : L'environnement Python qui exécute votre code
-- Environnement virtuel : Un Python isolé pour le projet
+  ## Par où commencer ?
 
-## Par où commencer ?
-1. Installez d'abord tous les logiciels nécessaires
-2. Familiarisez-vous avec VS Code (ouvrir des fichiers, le terminal)
-3. Suivez les étapes une par une, ne passez pas à la suivante si la précédente ne fonctionne pas
-4. En cas de problème, contactez l'équipe !
+  1. Installez d'abord tous les logiciels nécessaires
+  2. Familiarisez-vous avec VS Code (ouvrir des fichiers, le terminal)
+  3. Suivez les étapes une par une, ne passez pas à la suivante si la précédente ne fonctionne pas
+  4. En cas de problème, demander de l'aide
 
-## Prérequis - À installer avant tout
-1. Visual Studio Code (VS Code)
+  ## Installation pas à pas
+  ### Installations de base
+  ### VS Code
+
   - Télécharger et installer depuis : https://code.visualstudio.com/
   - Lors de l'installation, cocher "Add to PATH"
-
-2. Python (si pas encore fait)
-  - Télécharger la dernière version depuis : https://www.python.org/downloads/
-  - **IMPORTANT** : Lors de l'installation, cocher "Add Python to PATH"
-  - Vérifier l'installation en ouvrant un terminal (cmd) et taper :
-    python --version
-
-3. Installation et Configuration Git (!!!)\
-Télécharger et installer depuis : https://git-scm.com/downloads
-Pendant l'installation :
-   - Cliquer "Next" sur toutes les options par défaut
-   - À la fin, cocher "Launch Git Bash" 
-   - Cliquer "Finish"
-Vérifier l'installation :
-   - Ouvrir CMD (touche Windows, taper "cmd", Enter)
-   - Taper : git --version
-   - Si vous voyez une version, l'installation est réussie !
-Connexion à votre compte GitHub
-- Créer un compte sur github.com si pas déjà fait
-- Dans CMD, configurer Git avec votre compte :\
-git config --global user.name "Votre Nom" (ex git config --global user.name Toto Tata)\
-git config --global user.email "email@utilisé.surgithub" (ex git config --global user.email toto.tata@gmail.com)
-- Vérifier l'installation dans cmd:
-    git --version
-
-4. Installer virtualenv
-   - Ouvrir un terminal
-   - Exécuter :
-     pip install virtualenv
-   - Vérifier l'installation :
-     virtualenv --version
-
-5. Extensions VS Code requises
-  - Ouvrir VS Code
-  - Aller dans Extensions (Ctrl+Shift+X)
-  - Installer :
+  - Installer les extensions (Ctrl+Shift+X) :
     - Python
     - Jupyter
-    - GitLens (optionnel mais plus que recommandé)
-    - Github copilot (gratuit quand étudiant)
+    - Remote - WSL (si Windows)
+    - GitLens (recommandé)
 
-## Collaboration avec Git/GitHub
+  ### Python (si pas encore fait)
+    - Télécharger la dernière version depuis : https://www.python.org/downloads/
+    - **IMPORTANT** : Lors de l'installation, cocher "Add Python to PATH"
+    - Vérifier l'installation en ouvrant un terminal (cmd) et taper :
+      python --version
 
-### Configuration initiale
-#### Configuration de base (à faire une seule fois)
-git config --global user.name "Votre Nom"
-git config --global user.email "votre.email@example.com"
+  ### Installation et Configuration Git (!!!)\
+  Télécharger et installer depuis : https://git-scm.com/downloads
+  Pendant l'installation :
+    - Cliquer "Next" sur toutes les options par défaut
+    - À la fin, cocher "Launch Git Bash" 
+    - Cliquer "Finish"
+  Vérifier l'installation :
+    - Ouvrir CMD (touche Windows, taper "cmd", Enter)
+    - Taper : git --version
+    - Si vous voyez une version, l'installation est réussie !
+  Connexion à votre compte GitHub
+  - Créer un compte sur github.com si pas déjà fait
+  - Dans CMD, configurer Git avec votre compte :\
+  git config --global user.name "Prenom Nom" (ex git config --global user.name Toto Tata)\
+  git config --global user.email "email@utilisé.surgithub" (ex git config --global user.email toto.tata@gmail.com)
+  - Vérifier l'installation dans cmd:
+      git --version
 
-git clone https://github.com/Clemtourte/group4_BD_mgt/
-cd group4_BD_mgt/projet
+  ### Configuration selon votre OS (Windows ou Mac)
+  ### Pour Windows uniquement - Installation WSL
+  https://github.com/dajuca/edhec/blob/main/Windows_virtualization.md
+  se référer à ce tuto
 
-## Workflow en travaillant
-1. Avant de commencer à travailler
-   - Ouvrir Source Control dans VS Code (Ctrl+Shift+G) sur le coté gauche de vscode
-   - Cliquer sur les "..." (trois points)
-   - Sélectionner "Checkout to..." > "main"
-   - Cliquer sur "Sync Changes" (↻) pour récupérer les dernières modifications
-   - Cliquer sur les "..." > "Branch" > "Create Branch" pour créer votre branche de travail
-   - Nommer votre branche selon votre tâche (exemple : "modif_requete_BQ")
+  ### Installation des outils de développement
+  - Installer pyenv :
+  curl https://pyenv.run | bash
+  echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+  echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+  echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
+  echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+  source ~/.bashrc
+  - Installer direnv :
+  curl -sfL https://direnv.net/install.sh | bash
+  echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
+  source ~/.bashrc
 
-2. Pendant le travail
-   - Les fichiers modifiés apparaîtront dans Source Control
-   - Pour voir les modifications : cliquer sur le fichier
-   - Pour ajouter des modifications (équivalent git add) :
-     * Cliquer sur le + à côté du fichier pour l'ajouter
-     * Ou cliquer sur le + à côté de "Changes" pour tout ajouter
-   - Pour commit :
-     * Écrire un message décrivant vos modifications dans la zone de texte en haut
-     * Cliquer sur Commit au-dessus
-   - Pour envoyer vos modifications :
-     * Cliquer sur "Sync Changes"
+  ### Installation du projet
+  Dans le terminal Ubuntu :
+  git clone https://github.com/Clemtourte/group4_BD_mgt.git
+  cd group4_BD_mgt
+  pyenv install 3.12.1
+  pyenv local 3.12.1
+  direnv allow
+  pip install -r requirements.txt
+  pip install -e .
 
-3. Pour créer une Pull Request
-   - Dans Source Control
-   - Cliquer sur "Create Pull Request" (apparaît après le push)
-   - Suivre les instructions pour créer la PR sur GitHub
+  ## Navigation de base dans le terminal
+- cd nomDuDossier : entre dans un dossier
+- cd .. : remonte d'un dossier
+- ls : liste les fichiers du dossier actuel
+- ctrl+c : arrête une commande en cours
+- Flèche haut : retrouve les commandes précédentes
 
-## Environnement Python
-### Création de l'environnement virtuel
-Dans cmd :
-python -m venv env
+  ## Workflow quotidien
+  ### Au démarrage
+  - Ouvrir VS Code et un terminal Ubuntu
+  - Vérifier que vous êtes dans le bon dossier: cd group4_BD_mgt
+  - Mettre à jour le projet : git checkout main PUIS git pull origin main
+  - Vérifier que tout fonctionne : make run
 
-Puis pour l'activer (sur windows dans cmd de VSCode, pas dans powershell):
-env\scripts\activate.bat
+  ### Pourquoi make run ?
+  make run est essentiel au début de chaque session de travail car il :
+  - Charge les données depuis BigQuery (via load_data.py)
+  - Nettoie et prépare les données (via clean_data.py)
+  - Exécute toutes les analyses (via main.py)
 
-## Installation des dépendances
-Dans cmd (avec env activé):
-pip install -r requirements.txt
-pip install -e .  # Pour installer le package en mode développement
+  C'est important car :
+  - Vérifie que votre environnement est bien configuré
+  - Assure que vous avez les dernières données
+  - Confirme que le pipeline complet fonctionne
 
-## Config BQ
-1. Créer fichier .env à la racine
-Ecrire dedans :
-GOOGLE_APPLICATION_CREDENTIALS="chemin/vers/votre/fichier-credentials.json"
+  Si make run échoue :
+  1. Vérifier que vous êtes dans le bon dossier (cd group4_BD_mgt)
+  2. Vérifier que direnv est actif (le terminal doit l'indiquer)
+  3. Vérifier les credentials BigQuery (.env bien configuré)
+  4. Si l'erreur persiste, regarder la section "Problèmes courants"
 
-2. Ajouter au .gitignore si pas déja fait au clone du repo: (!!)
-.env
-*.json
-env/
-__pycache__/
+  ### Pour travailler
+  1. Créer une nouvelle branche :
+  - Ouvrir Source Control dans VS Code (Ctrl+Shift+G)
+  - Cliquer sur les "..." (trois points)
+  - Branch > Create Branch
+  - Nommer votre branche selon votre tâche (exemple : "modif_requete_BQ")
+  2. Pendant le travail
+  - Les fichiers modifiés apparaîtront dans Source Control
+  - Pour ajouter des modifications : Cliquer sur le + à côté du fichier
+  - Pour commit : Écrire un message décrivant vos modifications puis cliquer sur "Commit"
+  - Pour envoyer vos modifications : Cliquer sur "Sync Changes"
+  - Si modifs qu'on ne veut pas garder, cliquer sur "stash changes", entrez un message de stash puis appuyez sur entrée 
 
-## Structure du projet
-projet/
-├── scripts/
-│   ├── __init__.py
-│   └── lib.py
-├── notebooks/
-├── env/
-├── setup.py
-├── requirements.txt
-├── .env
-├── .gitignore
-└── README.md
+  ## Structure du projet
+  group4_BD_mgt/
+  ├── bdm_analysis/           # Package principal
+  │   ├── notebooks/         # Notebooks Jupyter
+  │   ├── init.py
+  │   ├── clean_data.py      # Nettoyage des données
+  │   ├── lib.py             # Fonctions utilitaires
+  │   ├── load_data.py       # Chargement données BigQuery
+  │   └── main.py            # Point d'entrée principal
+  ├── .direnv/               # Configuration direnv
+  ├── .env                   # Variables d'environnement
+  ├── .envrc                # Configuration direnv
+  ├── Makefile
+  └── setup.py
 
-## Config VSCode
-1. Sélection de l'interpréteur:
--Ctrl+Shift+P
--"Python: Select Interpreter"
--Choisir l'environnement du projet (env)
+  ## Configuration BigQuery
 
-2. Config des notebooks
-Sélectionner le meme kernel qui correpond a l'environnement virtuel (env)
+  Placer le fichier de credentials dans le projet
+  Dans .env, ajouter :
+  GOOGLE_APPLICATION_CREDENTIALS="chemin/vers/fichier-credentials.json"
 
-### Vérification finale
-Après installation, vous devriez voir :
-- (env) au début de votre ligne de terminal
-- Le bon interpréteur sélectionné dans VS Code
-- Tous les imports qui fonctionnent dans le notebook test
+  ## Utilisation du Makefile
+  Le plus important :
+  make run    # Lance le pipeline complet
+  make clean  # Nettoie les fichiers temporaires
+  Autres commandes disponibles :
 
-## Tests d'installation
-### Tests des imports
-Dans le notebook test run:
-from scripts.lib import who_am_i
-who_am_i()
+  make install : Installe le package
+  make clean : Nettoie les fichiers temporaires
+  make load_data : Charge uniquement les données
+  make clean_data : Nettoie uniquement les données
 
-### Test BigQuery
-Dans le notebook test vérifier que la requête run
+  ## Configuration VS Code pour le projet
 
-## Problèmes courants
-- Si imports ne fonctionnent pas : vérifier que pip install -e . a bien été exécuté
-- Si kernel non trouvé : redémarrer VS Code
-- Si erreur BigQuery : vérifier le chemin dans .env
+  1. Sélection de l'interpréteur:
+  - Ctrl+Shift+P dans un fichier .py
+  - Taper "Python: Select Interpreter"
+  - Choisir le python en accord avec l'environnement virtuel
+
+
+  2. Pour les notebooks :
+  - Sélectionner le même kernel que l'interpréteur
+
+  ## Problèmes courants
+
+  - Si erreur WSL : Vérifier que WSL2 est installé
+  - Si erreur direnv : Exécuter direnv allow
+  - Si erreur BigQuery : Vérifier le chemin du fichier credentials
+  - Si imports ne fonctionnent pas : Vérifier que pip install -e . a été exécuté
