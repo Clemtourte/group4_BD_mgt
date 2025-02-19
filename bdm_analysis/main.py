@@ -20,90 +20,90 @@ from bdm_analysis.arbitrage_analysis import (
 
 def main():
     """
-    Exécute le pipeline d'analyse complet :
-    1. Chargement des données
-    2. Nettoyage des données
-    3. Analyses et prédictions
+    Executes the complete analysis pipeline:
+    1. Data loading
+    2. Data cleaning
+    3. Analyses and predictions
     """
     print("🚀 Starting the analysis pipeline...")
 
-    # 1️⃣ Chargement des données
+    # 1️⃣ Data loading
     print("\n1️⃣ Loading data from BigQuery...")
     raw_df = load_data_from_bigquery()
     if raw_df is None or raw_df.empty:
         print("❌ No data retrieved, exiting.")
         return
 
-    # 2️⃣ Nettoyage des données
+    # 2️⃣ Data cleaning
     print("\n2️⃣ Cleaning data...")
     clean_df = clean_data(raw_df)
 
     # 3️⃣ Analyses
     print("\n3️⃣ Running analyses...")
     try:
-        # ✅ Vérification des métriques de base
+        # ✅ Basic metrics verification
         metrics = verify_dataset_metrics(clean_df)
 
-        # ✅ Statistiques globales
+        # ✅ Overall statistics
         summary = generate_summary_stats(clean_df)
         print("\n📊 Overall Summary:")
         for key, value in summary.items():
             print(f"{key}: {value}")
 
-        # ✅ Analyse des collections
+        # ✅ Collection analysis
         collection_stats = analyze_collections(clean_df)
         print("\n📈 Collection Statistics:")
         print(collection_stats)
 
-        # ✅ Analyse des gammes de prix
+        # ✅ Price range analysis
         price_ranges = analyze_price_ranges(clean_df)
         print("\n💰 Price Range Analysis:")
         print(price_ranges)
 
-        # ✅ Tendances temporelles
+        # ✅ Time trends
         time_trends = analyze_time_trends(clean_df)
         print("\n⏰ Time Trends:")
         print(time_trends.head())
 
-        # ✅ Analyse des devises
+        # ✅ Currency analysis
         currency_stats = analyze_currency_variations(clean_df)
         print("\n💱 Currency Analysis:")
         for key, value in currency_stats.items():
             print(f"{key}: {value}")
 
-        # ✅ Matrice des prix de référence
+        # ✅ Price reference matrix
         price_matrix = create_price_reference_matrix(clean_df)
         print("\n🔄 Price Reference Matrix (sample):")
         print(price_matrix.head())
 
-        # ✅ Sauvegarde des données
+        # ✅ Saving data
         print("\n💾 Saving aggregated data...")
         if aggregate_to_csv(clean_df):
             print("✅ Data saved successfully!")
         else:
             print("⚠️ Warning: Data may not have been saved properly")
 
-        # 💹 Analyse d'arbitrage
+        # 💹 Arbitrage analysis
         print("\n💹 Running arbitrage analysis...")
         try:
-            # Générer et afficher le rapport d'arbitrage
+            # Generate and display arbitrage report
             arbitrage_report = generate_arbitrage_report(clean_df)
-            print("\nRapport d'Arbitrage:")
+            print("\nArbitrage Report:")
             print(arbitrage_report)
             
-            # Trouver les opportunités actuelles
+            # Find current opportunities
             current_opportunities = calculate_arbitrage_opportunities(clean_df)
             if not current_opportunities.empty:
-                print("\nOpportunités d'arbitrage actuelles:")
+                print("\nCurrent arbitrage opportunities:")
                 print(current_opportunities.sort_values('profit_percentage', ascending=False).head())
         except Exception as e:
             print(f"⚠️ Warning: Arbitrage analysis failed: {e}")
 
-        # 🔮 Prédiction des meilleures devises
+        # 🔮 Currency predictions
         print("\n🔮 Running currency predictions...")
         try:
-            # Exemple avec une référence spécifique
-            reference_to_predict = 'PNPAM00317'  # Vous pouvez modifier cette référence
+            # Example with a specific reference
+            reference_to_predict = 'PNPAM00715'  # You can change this reference
             print(f"\nPredicting best currencies for reference: {reference_to_predict}")
             best_currency_forecast_benefit(clean_df, reference_to_predict)
         except Exception as e:
@@ -117,4 +117,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    #test
