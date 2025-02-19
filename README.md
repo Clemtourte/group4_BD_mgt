@@ -1,193 +1,136 @@
-# Guide d'Installation et Configuration - BDM Project
-## Introduction
-Ce guide fournit les informations pour installer et configurer l'environnement de développement.
+# Panerai Watch Market Analysis
 
-## Petit lexique pour débutants
-- Terminal/CMD : La fenêtre noire où on tape des commandes (peut s'ouvrir directement depuis VScode, je recommande d'utiliser cmd et pas powershell, pour naviguer entre les fichiers utiliser "cd projet" par exemple)
-- Repository (repo) : Le dossier du projet partagé sur GitHub
-- Branch : Une version parallèle du code pour travailler sans affecter le projet principal
-- Pull Request (PR) : Demande pour ajouter vos modifications au projet principal
-- Kernel : L'environnement Python qui exécute votre code
-- Environnement virtuel : Un Python isolé pour le projet
-- WSL : Windows Subsystem for Linux - Permet d'utiliser Linux sur Windows
-- direnv : Outil pour charger automatiquement les variables d'environnement
-- pyenv : Gestionnaire de versions Python
+## Overview
+Analysis tool for Panerai watches, featuring price arbitrage detection, trend analysis, and price predictions. Built with secure data handling and clean environment management.
 
-## Par où commencer ?
+## Key Features
+- **Data Loading**: Secure BigQuery integration for watch price data
+- **Data Processing**: Robust cleaning and standardization pipeline
+- **Market Analysis**: 
+  - Arbitrage opportunity detection across currencies
+  - Price trend analysis and forecasting
+  - Collection-based analytics
+- **Interactive Visualization**: Streamlit dashboard for real-time analysis
+- **Secure Environment**: Managed with pyenv and direnv for reproducibility
 
-1. Installez d'abord tous les logiciels nécessaires
-2. Familiarisez-vous avec VS Code (ouvrir des fichiers, le terminal)
-3. Suivez les étapes une par une, ne passez pas à la suivante si la précédente ne fonctionne pas
-4. En cas de problème, demander de l'aide
+## Prerequisites
+- Python 3.12.1
+- WSL2 (for Windows users)
+- Git
+- VS Code with Python and WSL extensions
+- BigQuery credentials
+- pyenv
+- direnv
 
-## Installation pas à pas
-### Installations de base
-### VS Code
-- Télécharger et installer depuis : https://code.visualstudio.com/
-- Lors de l'installation, cocher "Add to PATH"
-- Installer les extensions (Ctrl+Shift+X) :
-  - Python
-  - Jupyter
-  - Remote - WSL (si Windows)
-  - GitLens (recommandé)
+## Quick Setup
+1. **Clone and Setup Environment**
+```bash
+git clone https://github.com/Clemtourte/group4_BD_mgt.git
+cd group4_BD_mgt
+pyenv install 3.12.1
+pyenv local 3.12.1
+direnv allow
+```
 
-### Python (si pas encore fait)
-  - Télécharger la dernière version depuis : https://www.python.org/downloads/
-  - **IMPORTANT** : Lors de l'installation, cocher "Add Python to PATH"
-  - Vérifier l'installation en ouvrant un terminal (cmd) et taper :
-    python --version
+2. **Configure Credentials**
+- Place your BigQuery credentials file in the project root
+- Set up `.env`:
+```
+GOOGLE_APPLICATION_CREDENTIALS="path/to/credentials.json"
+```
 
-### Installation et Configuration Git (!!!)\
-Télécharger et installer depuis : https://git-scm.com/downloads
-Pendant l'installation :
-  - Cliquer "Next" sur toutes les options par défaut
-  - À la fin, cocher "Launch Git Bash" 
-  - Cliquer "Finish"
-Vérifier l'installation :
-  - Ouvrir CMD (touche Windows, taper "cmd", Enter)
-  - Taper : git --version
-  - Si vous voyez une version, l'installation est réussie !
-Connexion à votre compte GitHub
-- Créer un compte sur github.com si pas déjà fait
-- Dans CMD, configurer Git avec votre compte :\
-git config --global user.name "Prenom Nom" (ex git config --global user.name Toto Tata)\
-git config --global user.email "email@utilisé.surgithub" (ex git config --global user.email toto.tata@gmail.com)
-- Vérifier l'installation dans cmd:
-    git --version
+3. **Install Dependencies**
+```bash
+make install
+```
 
-### Configuration selon votre OS (Windows ou Mac)
-### Pour Windows uniquement - Installation WSL
-https://github.com/dajuca/edhec/blob/main/Windows_virtualization.md
-se référer à ce tuto
+## Usage
+### Core Commands
+```bash
+make all          # Run install, clean, and main pipeline
+make run          # Run main analysis pipeline
+make clean        # Clean temporary files and caches
+make install      # Install package and dependencies
+make streamlit    # Launch visualization dashboard
+```
 
-### Installation des outils de développement
-- Installer pyenv :
-curl https://pyenv.run | bash
-echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
-echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-source ~/.bashrc
-- Installer direnv :
-curl -sfL https://direnv.net/install.sh | bash
-echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
-source ~/.bashrc
+### Project Structure
+```
+group4_BD_mgt/
+├── bdm_analysis/           
+│   ├── notebooks/         # Jupyter notebooks for testing
+│   ├── streamlit/         # Streamlit-based visualization components
+│       ├──app.py             # Streamlit web app entry point
+│   ├── clean_data.py      # Data cleaning functions (currency conversion, missing data handling)
+│   ├── load_data.py       # Queries BigQuery and loads watch data
+│   ├── predicting_algo.py # Linear regression model for price forecasting
+│   ├── arbitrage_analysis.py # Arbitrage detection logic
+│   ├── analyze_data.py    # Various analysis functions (collections, trends, price ranges)
+│   ├── main.py            # End-to-end execution pipeline
+├── Makefile           # Automation commands for installation and execution
+├── requirements.txt   # Required Python dependencies
+├── setup.py           # Package installation setup
+└── .envrc             # Environment variable configurations
+```
 
-### Installation du projet
-Dans le terminal Ubuntu :
-git clone https://github.com/Clemtourte/group4_BD_mgt.git\
-cd group4_BD_mgt\
-pyenv install 3.12.1\
-pyenv local 3.12.1\
-direnv allow\
-pip install -r requirements.txt\
-pip install -e .\
+## Key Files
+- `clean_data.py`: Data cleaning and standardization
+- `load_data.py`: Secure BigQuery data retrieval
+- `arbitrage_analysis.py`: Cross-currency arbitrage detection
+- `predicting_algo.py`: Price prediction algorithms
+- `main.py`: Pipeline orchestration
+- `.envrc`: Environment configuration with direnv
+- `Makefile`: Build and execution automation
 
-## Navigation de base dans le terminal
-- cd nomDuDossier : entre dans un dossier
-- cd .. : remonte d'un dossier
-- ls : liste les fichiers du dossier actuel
-- ctrl+c : arrête une commande en cours
-- Flèche haut : retrouve les commandes précédentes
+## Environment Configuration
+### Environment Variables (.envrc)
+```bash
+export MODEL_TARGET="local"
+export GOOGLE_APPLICATION_CREDENTIALS="$PWD/group4_BD_mgt/credentials.json"
+export PYTHONPATH="$PWD:$PYTHONPATH"
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+```
 
-## Note sur les différents terminaux
-- CMD: Le terminal Windows classique
-- PowerShell: À éviter pour ce projet
-- Terminal Ubuntu (WSL): Celui qu'on utilise, reconnaissable par son prompt qui commence par votre nom d'utilisateur@
-- Terminal VS Code: S'assurer qu'il est bien en mode "Ubuntu" (visible en haut à droite du terminal)
+### Environment Management
+The project uses:
+- **pyenv**: Python version management
+- **direnv**: Automatic environment loading
 
-## Workflow quotidien
-### Au démarrage
-- Ouvrir VS Code et un terminal Ubuntu
-- Vérifier que vous êtes dans le bon dossier: cd group4_BD_mgt
-- Si pas déjà activé (le terminal ne montre pas (env) ou le nom de votre environnement au début) : source env/bin/activate    # Le terminal devrait maintenant afficher (env) au début
-- Mettre à jour le projet : git checkout main PUIS git pull origin main
-- Vérifier que tout fonctionne : make run
+## Development Workflow
+1. Create feature branch from main
+2. Make your changes
+3. Run full pipeline: `make all`
+4. Commit and push changes
+5. Create pull request
 
-### Comment savoir si tout est bien configuré
-- Dans le terminal Ubuntu :
-  - (env) est visible au début de la ligne
-  - direnv: loading .envrc apparaît quand vous entrez dans le dossier
-  - pyenv local montre 3.12.1
-- Dans VS Code :
-  - L'interpréteur Python sélectionné correspond à votre env
-  - Pas de soulignements rouges dans les imports
+## Dashboard
+The Streamlit dashboard provides:
+- Arbitrage opportunity detection
+- Price prediction visualization
+- Interactive market analysis tools
 
-### Pourquoi make run ?
-make run est essentiel au début de chaque session de travail car il :
-- Charge les données depuis BigQuery (via load_data.py)
-- Nettoie et prépare les données (via clean_data.py)
-- Exécute toutes les analyses (via main.py)
+Launch with:
+```bash
+make streamlit
+```
 
-C'est important car :
-- Vérifie que votre environnement est bien configuré
-- Assure que vous avez les dernières données
-- Confirme que le pipeline complet fonctionne
+## Common Issues
+- WSL2 not installed: Follow WSL installation guide
+- direnv not loading: Run `direnv allow`
+- Import errors: Verify `make install` was run
+- BigQuery errors: Check credentials path in `.env`
+- Package errors: Run `make requirements` to update dependencies
 
-Si make run échoue :
-1. Vérifier que vous êtes dans le bon dossier (cd group4_BD_mgt)
-2. Vérifier que direnv est actif (le terminal doit l'indiquer)
-3. Vérifier les credentials BigQuery (.env bien configuré)
-4. Si l'erreur persiste, regarder la section "Problèmes courants"
+## Makefile Commands
+- `make requirements`: Update requirements.txt file
+- `make install`: Install or update project dependencies
+- `make clean`: Remove temporary files and caches
+- `make run`: Execute main analysis pipeline
+- `make streamlit`: Launch the visualization dashboard
+- `make all`: Full pipeline (install, clean, run)
 
-### Pour travailler
-1. Créer une nouvelle branche :
-- Ouvrir Source Control dans VS Code (Ctrl+Shift+G)
-- Cliquer sur les "..." (trois points)
-- Branch > Create Branch
-- Nommer votre branche selon votre tâche (exemple : "modif_requete_BQ")
-2. Pendant le travail
-- Les fichiers modifiés apparaîtront dans Source Control
-- Pour ajouter des modifications : Cliquer sur le + à côté du fichier
-- Pour commit : Écrire un message décrivant vos modifications puis cliquer sur "Commit"
-- Pour envoyer vos modifications : Cliquer sur "Sync Changes"
-- Si modifs qu'on ne veut pas garder, cliquer sur "stash changes", entrez un message de stash puis appuyez sur entrée 
-
-## Structure du projet
-  group4_BD_mgt/
-  ├── bdm_analysis/           # Package principal
-  │   ├── notebooks/         # Notebooks Jupyter
-  │   ├── init.py
-  │   ├── clean_data.py      # Nettoyage des données
-  │   ├── lib.py             # Fonctions utilitaires
-  │   ├── load_data.py       # Chargement données BigQuery
-  │   └── main.py            # Point d'entrée principal
-  ├── .direnv/               # Configuration direnv
-  ├── .env                   # Variables d'environnement
-  ├── .envrc                # Configuration direnv
-  ├── Makefile
-  └── setup.py
-
-## Configuration BigQuery
-
-Placer le fichier de credentials dans le projet
-Dans .env, ajouter :
-GOOGLE_APPLICATION_CREDENTIALS="chemin/vers/fichier-credentials.json"
-
-## Utilisation du Makefile
-Le plus important :
-make run    # Lance le pipeline complet
-make clean  # Nettoie les fichiers temporaires
-Autres commandes disponibles :
-
-make install : Installe le package
-make clean : Nettoie les fichiers temporaires
-make load_data : Charge uniquement les données
-make clean_data : Nettoie uniquement les données
-
-## Configuration VS Code pour le projet
-
-1. Sélection de l'interpréteur:
-- Ctrl+Shift+P dans un fichier .py
-- Taper "Python: Select Interpreter"
-- Choisir le python en accord avec l'environnement virtuel
-
-2. Pour les notebooks :
-- Sélectionner le même kernel que l'interpréteur
-
-## Problèmes courants
-
-- Si erreur WSL : Vérifier que WSL2 est installé
-- Si erreur direnv : Exécuter direnv allow
-- Si erreur BigQuery : Vérifier le chemin du fichier credentials
-- Si imports ne fonctionnent pas : Vérifier que pip install -e . a été exécuté
+## Security
+- Secure credential management via environment variables
+- BigQuery authentication through service account
+- Isolated Python environment for dependency control
