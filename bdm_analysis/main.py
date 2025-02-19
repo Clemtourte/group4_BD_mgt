@@ -9,6 +9,7 @@ from bdm_analysis.analyze_data import (
     analyze_currency_variations,
     generate_summary_stats
 )
+from bdm_analysis.aggregate_to_csv import aggregate_to_csv
 
 def main():
     """
@@ -67,6 +68,9 @@ def main():
         
         print("\n✅ Analysis pipeline completed successfully!")
         
+        # Aggregate into a CSV for ML
+        aggregate_to_csv(clean_df)
+
     except Exception as e:
         print(f"❌ Error during analysis: {e}")
         return
