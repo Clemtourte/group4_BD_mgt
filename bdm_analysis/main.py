@@ -10,6 +10,7 @@ from bdm_analysis.analyze_data import (
     generate_summary_stats
 )
 from bdm_analysis.aggregate_to_csv import aggregate_to_csv
+from bdm_analysis.predicting_algo import best_currency_forecast_benefit
 
 def main():
     """
@@ -70,6 +71,8 @@ def main():
         
         # Aggregate into a CSV for ML
         aggregate_to_csv(clean_df)
+
+        best_currency_forecast_benefit(clean_df, 'PNPAM00317')
 
     except Exception as e:
         print(f"❌ Error during analysis: {e}")
