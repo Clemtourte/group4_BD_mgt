@@ -11,6 +11,12 @@ from bdm_analysis.analyze_data import (
 )
 from bdm_analysis.aggregate_to_csv import aggregate_to_csv
 from bdm_analysis.predicting_algo import best_currency_forecast_benefit
+from bdm_analysis.arbitrage_analysis import (
+    calculate_arbitrage_opportunities,
+    analyze_historical_arbitrage,
+    find_stable_arbitrage_pairs,
+    generate_arbitrage_report
+)
 
 def main():
     """
@@ -76,6 +82,22 @@ def main():
             print("✅ Data saved successfully!")
         else:
             print("⚠️ Warning: Data may not have been saved properly")
+
+        # 💹 Analyse d'arbitrage
+        print("\n💹 Running arbitrage analysis...")
+        try:
+            # Générer et afficher le rapport d'arbitrage
+            arbitrage_report = generate_arbitrage_report(clean_df)
+            print("\nRapport d'Arbitrage:")
+            print(arbitrage_report)
+            
+            # Trouver les opportunités actuelles
+            current_opportunities = calculate_arbitrage_opportunities(clean_df)
+            if not current_opportunities.empty:
+                print("\nOpportunités d'arbitrage actuelles:")
+                print(current_opportunities.sort_values('profit_percentage', ascending=False).head())
+        except Exception as e:
+            print(f"⚠️ Warning: Arbitrage analysis failed: {e}")
 
         # 🔮 Prédiction des meilleures devises
         print("\n🔮 Running currency predictions...")
