@@ -5,8 +5,8 @@ from bdm_analysis.analyze_data import (
     analyze_collections,
     analyze_price_ranges,
     analyze_time_trends,
-    analyze_price_changes,
     create_price_reference_matrix,
+    analyze_currency_variations,
     generate_summary_stats
 )
 
@@ -54,9 +54,11 @@ def main():
         print("\n⏰ Time Trends:")
         print(time_trends.head())
         
-        price_changes = analyze_price_changes(clean_df)
-        print("\n💱 Price Changes:")
-        print(price_changes)
+        # Analyze currency variations
+        currency_stats = analyze_currency_variations(clean_df)
+        print("\n💱 Currency Analysis:")
+        for key, value in currency_stats.items():
+            print(f"{key}: {value}")
         
         # Create price reference matrix
         price_matrix = create_price_reference_matrix(clean_df)

@@ -33,90 +33,113 @@ def verify_dataset_metrics(df):
 
 def analyze_collections(df):
     """
-    Analyzes collections statistics.
+    Analyzes collections statistics using EUR prices.
     """
     stats = df.groupby('collection').agg({
         'reference_code': 'count',
-        'price': ['mean', 'min', 'max', 'std']
+        'price_eur': ['mean', 'min', 'max', 'std']
     }).round(2)
     
-    stats.columns = ['model_count', 'avg_price', 'min_price', 'max_price', 'price_std']
+    stats.columns = ['model_count', 'avg_price_eur', 'min_price_eur', 'max_price_eur', 'price_std_eur']
     return stats.reset_index()
 
 def analyze_price_ranges(df):
     """
-    Segments watches into price categories and analyzes each segment.
+    Segments watches into price categories and analyzes each segment using EUR prices.
     """
     df['price_category'] = pd.cut(
-        df['price'],
+        df['price_eur'],
         bins=[0, 10000, 25000, 50000, float('inf')],
         labels=['Entry Level', 'Mid Range', 'High End', 'Ultra Luxury']
     )
     
     ranges = df.groupby('price_category').agg({
         'reference_code': ['count', 'nunique'],
-        'price': 'mean',
+        'price_eur': 'mean',
         'collection': 'nunique'
     }).round(2)
     
-    ranges.columns = ['model_count', 'unique_references', 'avg_price', 'unique_collections']
+    ranges.columns = ['model_count', 'unique_references', 'avg_price_eur', 'unique_collections']
     return ranges.reset_index()
 
 def analyze_time_trends(df):
     """
-    Analyzes trends over time.
+    Analyzes trends over time using EUR prices.
     """
     df['year_quarter'] = pd.to_datetime(df['life_span_date']).dt.to_period('Q')
     
     trends = df.groupby('year_quarter').agg({
-        'price': ['mean', 'count'],
+        'price_eur': ['mean', 'count'],
         'reference_code': 'nunique',
         'collection': 'nunique'
     }).round(2)
     
-    trends.columns = ['avg_price', 'model_count', 'unique_references', 'unique_collections']
+    # Properly flatten the column names
+    trends.columns = [
+        'avg_price_eur', 
+        'model_count',
+        'unique_references', 
+        'unique_collections'
+    ]
+    
     return trends.reset_index()
-
-def analyze_price_changes(df):
-    """
-    Analyzes price changes patterns.
-    """
-    price_changes = df[df['price_difference'] != 0].copy()
-    
-    changes = price_changes.groupby('collection').agg({
-        'price_difference': ['count', 'mean', 'min', 'max'],
-        'reference_code': 'nunique'
-    }).round(2)
-    
-    changes.columns = ['change_count', 'avg_change', 'min_change', 'max_change', 'models_affected']
-    return changes.reset_index()
 
 def create_price_reference_matrix(df):
     """
     Creates a matrix of prices by reference and currency.
-    Uses EUR as base currency.
+    Includes both original prices and EUR conversions.
     """
-    price_matrix = df.pivot_table(
+    # Original currency matrix
+    orig_matrix = df.pivot_table(
         index=['reference_code', 'life_span_date'],
         columns='currency',
         values='price',
         aggfunc='first'
-    ).reset_index()
+    )
+    
+    # EUR matrix
+    eur_matrix = df.pivot_table(
+        index=['reference_code', 'life_span_date'],
+        values='price_eur',
+        aggfunc='first'
+    )
+    
+    # Combine both
+    combined_matrix = pd.concat([orig_matrix, eur_matrix], axis=1)
+    combined_matrix = combined_matrix.reset_index()
     
     # Sort by date and reference
-    price_matrix = price_matrix.sort_values(['reference_code', 'life_span_date'])
+    combined_matrix = combined_matrix.sort_values(['reference_code', 'life_span_date'])
     
-    return price_matrix
+    return combined_matrix
+
+def analyze_currency_variations(df):
+    """
+    Analyzes price variations between currencies for each reference.
+    """
+    latest_prices = df.sort_values('life_span_date').groupby('reference_code').last()
+    
+    summary = {
+        'avg_eur_price': latest_prices['price_eur'].mean(),
+        'min_eur_price': latest_prices['price_eur'].min(),
+        'max_eur_price': latest_prices['price_eur'].max(),
+        'price_std_eur': latest_prices['price_eur'].std(),
+        'total_references': len(latest_prices),
+        'currencies_count': df['currency'].nunique(),
+        'date_range': f"{df['life_span_date'].min().date()} - {df['life_span_date'].max().date()}"
+    }
+    
+    return summary
 
 def generate_summary_stats(df):
     """
-    Generates overall summary statistics.
+    Generates overall summary statistics using EUR prices.
     """
     summary = {
         'total_models': df['reference_code'].nunique(),
         'total_collections': df['collection'].nunique(),
-        'avg_price': df['price'].mean().round(2),
-        'price_range': f"{df['price'].min()} - {df['price'].max()}",
+        'avg_price_eur': df['price_eur'].mean().round(2),
+        'price_range_eur': f"{df['price_eur'].min():.2f} - {df['price_eur'].max():.2f}",
         'most_common_collection': df['collection'].mode().iloc[0],
         'date_range': f"{df['life_span_date'].min().date()} - {df['life_span_date'].max().date()}"
     }
