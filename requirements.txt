@@ -3,7 +3,6 @@ AccessControl==7.2
 Acquisition==6.1
 asttokens==3.0.0
 AuthEncoding==5.0
--e git+https://github.com/Clemtourte/group4_BD_mgt.git@8d6e3560baf333ade75e3dc748d9b69ef9d64f91#egg=bdm_analysis
 beautifulsoup4==4.13.3
 BTrees==6.1
 cachetools==5.5.1
