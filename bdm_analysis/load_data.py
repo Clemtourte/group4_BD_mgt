@@ -24,6 +24,7 @@ def load_data_from_bigquery():
             print("⚠️ No data found for this query.")
         else:
             print("✅ Data successfully retrieved!")
+            print(f"📊 Retrieved {len(df)} rows")
         
         return df
     except Exception as e:
