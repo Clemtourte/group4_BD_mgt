@@ -5,15 +5,14 @@ from sklearn.linear_model import LinearRegression
 import os
 import matplotlib.pyplot as plt
 
-def best_currency_forecast_benefit(df, reference_code):
+def currency_forecast_benefit(df, reference_code, currency):
     """
-    For a given reference_code:
-      1. Filter the DataFrame for this reference_code.
-      2. Group by 'currency'.
-      3. Train a mini-model (LinearRegression) to predict price_eur based on date.
-      4. Forecast the future price (30 days after the last known date).
-      5. Calculate the difference (potential benefit) between the last known price and the forecast.
-      6. Return the currency with the highest benefit and the value of this benefit.
+    For a given reference_code and currency:
+      1. Filter the DataFrame for this reference_code and currency.
+      2. Train a mini-model (LinearRegression) to predict price_eur based on date.
+      3. Forecast the future price (30 days after the last known date).
+      4. Calculate the difference (potential benefit) between the last known price and the forecast.
+      5. Return the forecasted price in the selected currency and in euros, and the value of this benefit.
 
     Parameters
     ----------
@@ -25,20 +24,24 @@ def best_currency_forecast_benefit(df, reference_code):
           - 'life_span_date' (format DD/MM/YYYY or YYYY-MM-DD, etc.)
     reference_code : str
         The reference code to analyze.
+    currency : str
+        The currency to analyze.
 
     Returns
     -------
-    (best_currency, best_benefit)
-        best_currency : str
-            The currency with the highest forecasted benefit.
-        best_benefit : float
+    (forecast_price_currency, forecast_price_eur, benefit)
+        forecast_price_currency : float
+            The forecasted price in the selected currency.
+        forecast_price_eur : float
+            The forecasted price in euros.
+        benefit : float
             The value of this potential benefit in euros.
         If no result, returns None.
     """
-    # Filter by reference_code
-    df_filtered = df[df['reference_code'] == reference_code].copy()
+    # Filter by reference_code and currency
+    df_filtered = df[(df['reference_code'] == reference_code) & (df['currency'] == currency)].copy()
     if df_filtered.empty:
-        print(f"No data for reference_code: {reference_code}")
+        print(f"No data for reference_code: {reference_code} and currency: {currency}")
         return None
     
     # Convert life_span_date to datetime
@@ -51,73 +54,53 @@ def best_currency_forecast_benefit(df, reference_code):
     df_filtered['price_eur'] = pd.to_numeric(df_filtered['price_eur'], errors='coerce')
     df_filtered.dropna(subset=['price_eur'], inplace=True)
     
-    # Store the best result
-    best_currency = None
-    best_benefit = -np.inf  # To compare benefits
-    best_forecast_price = None
-    best_group = None
-    best_model = None
+    # Sort by date
+    df_filtered = df_filtered.sort_values(by='date_dt')
     
-    # Iterate through each currency
-    for currency, group in df_filtered.groupby('currency'):
-        # Sort by date
-        group = group.sort_values(by='date_dt')
-        
-        # Skip if only one data point
-        if len(group) < 2:
-            continue
-        
-        # Prepare X and y for regression
-        group['date_ordinal'] = group['date_dt'].apply(datetime.toordinal)
-        X = group[['date_ordinal']]
-        y = group['price_eur']
-        
-        # Train a simple linear regression
-        model = LinearRegression()
-        model.fit(X, y)
-        
-        # Forecast 30 days after the last known date
-        last_date_ordinal = group['date_ordinal'].max()
-        forecast_date_ordinal = last_date_ordinal + 30
-        
-        # Convert forecast date to DataFrame
-        forecast_date_df = pd.DataFrame({'date_ordinal': [forecast_date_ordinal]})
-        
-        # Prediction
-        y_pred = model.predict(forecast_date_df)[0]
-        
-        # Last known price
-        last_price = group.iloc[-1]['price_eur']
-        
-        # Potential benefit
-        benefit = y_pred - last_price
-        
-        # Check if it's the best currency
-        if benefit > best_benefit:
-            best_benefit = benefit
-            best_currency = currency
-            best_forecast_price = y_pred
-            best_group = group
-            best_model = model
-    
-    # Display result
-    if best_currency is None:
-        print(f"Cannot calculate benefit for reference_code {reference_code} (not enough data).")
+    # Skip if only one data point
+    if len(df_filtered) < 2:
+        print(f"Not enough data points for reference_code: {reference_code} and currency: {currency}")
         return None
     
-    print(f"Best currency to buy: {best_currency}")
-    print(f"Potential benefit (forecast): {best_benefit:.2f} EUR")
-    print(f"Details: last known price = {last_price:.2f} EUR, predicted price = {best_forecast_price:.2f} EUR")
+    # Prepare X and y for regression
+    df_filtered['date_ordinal'] = df_filtered['date_dt'].apply(datetime.toordinal)
+    X = df_filtered[['date_ordinal']]
+    y = df_filtered['price_eur']
     
-    # Plot the data and the regression line for the best currency
+    # Train a simple linear regression
+    model = LinearRegression()
+    model.fit(X, y)
+    
+    # Forecast 30 days after the last known date
+    last_date_ordinal = df_filtered['date_ordinal'].max()
+    forecast_date_ordinal = last_date_ordinal + 30
+    
+    # Convert forecast date to DataFrame
+    forecast_date_df = pd.DataFrame({'date_ordinal': [forecast_date_ordinal]})
+    
+    # Prediction
+    forecast_price_eur = model.predict(forecast_date_df)[0]
+    
+    # Last known price
+    last_price = df_filtered.iloc[-1]['price_eur']
+    
+    # Potential benefit
+    benefit = forecast_price_eur - last_price
+    
+    # Display result
+    print(f"Forecasted price in {currency}: {forecast_price_eur:.2f} EUR")
+    print(f"Potential benefit (forecast): {benefit:.2f} EUR")
+    print(f"Details: last known price = {last_price:.2f} EUR, predicted price = {forecast_price_eur:.2f} EUR")
+    
+    # Plot the data and the regression line
     plt.figure(figsize=(10, 6))
-    plt.scatter(best_group['date_dt'], best_group['price_eur'], color='blue', label='Actual Prices')
-    plt.plot(best_group['date_dt'], best_model.predict(best_group[['date_ordinal']]), color='red', label='Regression Line')
+    plt.scatter(df_filtered['date_dt'], df_filtered['price_eur'], color='blue', label='Actual Prices')
+    plt.plot(df_filtered['date_dt'], model.predict(df_filtered[['date_ordinal']]), color='red', label='Regression Line')
     plt.xlabel('Date')
     plt.ylabel('Price in EUR')
-    plt.title(f'Price Prediction for {best_currency}')
+    plt.title(f'Price Prediction for {currency}')
     plt.legend()
     plt.grid(True)
     plt.show()
     
-    return best_currency, best_benefit
+    return forecast_price_eur, benefit
