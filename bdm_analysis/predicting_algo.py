@@ -50,7 +50,7 @@ def best_currency_forecast_benefit(df, reference_code):
     df_filtered['price_eur'] = pd.to_numeric(df_filtered['price_eur'], errors='coerce')
     df_filtered.dropna(subset=['price_eur'], inplace=True)
     
-    # Store the best result
+    # Store the best result<fverbose
     best_currency = None
     best_benefit = -np.inf  # To compare benefits
     best_forecast_price = None
