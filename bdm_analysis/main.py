@@ -10,7 +10,7 @@ from bdm_analysis.analyze_data import (
     generate_summary_stats
 )
 from bdm_analysis.aggregate_to_csv import aggregate_to_csv
-from bdm_analysis.predicting_algo import best_currency_forecast_benefit
+from bdm_analysis.predicting_algo import currency_forecast_benefit
 from bdm_analysis.arbitrage_analysis import (
     calculate_arbitrage_opportunities,
     analyze_historical_arbitrage,
@@ -105,7 +105,7 @@ def main():
             # Example with a specific reference
             reference_to_predict = 'PNPAM00715'  # You can change this reference
             print(f"\nPredicting best currencies for reference: {reference_to_predict}")
-            best_currency_forecast_benefit(clean_df, reference_to_predict)
+            currency_forecast_benefit(clean_df, reference_to_predict,"USD")
         except Exception as e:
             print(f"⚠️ Warning: Prediction failed: {e}")
 
