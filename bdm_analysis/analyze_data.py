@@ -102,7 +102,7 @@ def create_price_reference_matrix(df):
         index=['reference_code', 'life_span_date'],
         values='price_eur',
         aggfunc='first'
-    )
+    ).round(2)
     
     # Combine both
     combined_matrix = pd.concat([orig_matrix, eur_matrix], axis=1)
@@ -110,6 +110,16 @@ def create_price_reference_matrix(df):
     
     # Sort by date and reference
     combined_matrix = combined_matrix.sort_values(['reference_code', 'life_span_date'])
+    
+    # Reorder columns to put EUR first
+    all_columns = ['reference_code', 'life_span_date', 'EUR']
+    other_currencies = [col for col in orig_matrix.columns if col != 'EUR']
+    all_columns.extend(other_currencies)
+    all_columns.append('price_eur')
+    
+    # Reorder columns and ensure all exist
+    existing_columns = [col for col in all_columns if col in combined_matrix.columns]
+    combined_matrix = combined_matrix[existing_columns]
     
     return combined_matrix
 
