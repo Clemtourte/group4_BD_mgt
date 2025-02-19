@@ -1,5 +1,4 @@
 asttokens==3.0.0
-bdm_analysis==0.1.0
 cachetools==5.5.1
 certifi==2025.1.31
 charset-normalizer==3.4.1

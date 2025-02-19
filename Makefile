@@ -15,7 +15,10 @@ load_data:
 clean_data:
 	@python -c "from bdm_analysis.load_data import load_data_from_bigquery; from bdm_analysis.clean_data import clean_data; df = load_data_from_bigquery(); df = clean_data(df)"
 
-run:
+requirements:
+	@pip freeze | grep -v "bdm_analysis" > requirements.txt
+
+run: requirements
 	@python -m bdm_analysis.main
 
 all: install clean
