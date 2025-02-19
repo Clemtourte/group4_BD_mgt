@@ -105,11 +105,7 @@ def main():
             # Example with a specific reference
             reference_to_predict = 'PNPAM00715'  # You can change this reference
             print(f"\nPredicting best currencies for reference: {reference_to_predict}")
-<<<<<<< HEAD
             currency_forecast_benefit(clean_df, reference_to_predict,currency='EUR')
-=======
-            currency_forecast_benefit(clean_df, reference_to_predict,"USD")
->>>>>>> 36caed7ee7ddcf48e2a43819f17506ca13f302f8
         except Exception as e:
             print(f"⚠️ Warning: Prediction failed: {e}")
 
