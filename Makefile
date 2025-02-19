@@ -1,5 +1,6 @@
 requirements:
-	@pip freeze | grep -v "bdm_analysis" > requirements.txt
+	@pip freeze | grep -v "bdm_analysis" > requirements_new.txt
+	@if ! cmp -s requirements.txt requirements_new.txt; then mv requirements_new.txt requirements.txt; echo "✅ requirements.txt updated"; else rm requirements_new.txt; echo "🔄 requirements.txt is already up to date"; fi
 
 install: requirements
 	@pip install -e .
