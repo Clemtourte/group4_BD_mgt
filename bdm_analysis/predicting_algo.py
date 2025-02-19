@@ -50,7 +50,7 @@ def best_currency_forecast_benefit(df, reference_code):
     df_filtered['price_eur'] = pd.to_numeric(df_filtered['price_eur'], errors='coerce')
     df_filtered.dropna(subset=['price_eur'], inplace=True)
     
-    # Store the best result<fverbose
+    # Store the best result
     best_currency = None
     best_benefit = -np.inf  # To compare benefits
     best_forecast_price = None
@@ -77,8 +77,11 @@ def best_currency_forecast_benefit(df, reference_code):
         last_date_ordinal = group['date_ordinal'].max()
         forecast_date_ordinal = last_date_ordinal + 30
         
+        # Convert forecast date to DataFrame
+        forecast_date_df = pd.DataFrame({'date_ordinal': [forecast_date_ordinal]})
+        
         # Prediction
-        y_pred = model.predict([[forecast_date_ordinal]])[0]
+        y_pred = model.predict(forecast_date_df)[0]
         
         # Last known price
         last_price = group.iloc[-1]['price_eur']
