@@ -10,7 +10,7 @@ Analysis tool for Panerai watches, featuring price arbitrage detection, trend an
   - Arbitrage opportunity detection across currencies
   - Price trend analysis and forecasting
   - Collection-based analytics
-- **Interactive Visualization**: Streamlit dashboard for real-time analysis
+- **Interactive Visualization**: Streamlit dashboard for real-time analysis and PowerBI dashboard for quick visualization
 - **Secure Environment**: Managed with pyenv and direnv for reproducibility
 
 ## Prerequisites
@@ -60,17 +60,18 @@ group4_BD_mgt/
 ├── bdm_analysis/           
 │   ├── notebooks/         # Jupyter notebooks for testing
 │   ├── streamlit/         # Streamlit-based visualization components
-│       ├──app.py             # Streamlit web app entry point
+│       ├──app.py          # Streamlit web app entry point
 │   ├── clean_data.py      # Data cleaning functions (currency conversion, missing data handling)
 │   ├── load_data.py       # Queries BigQuery and loads watch data
 │   ├── predicting_algo.py # Linear regression model for price forecasting
 │   ├── arbitrage_analysis.py # Arbitrage detection logic
 │   ├── analyze_data.py    # Various analysis functions (collections, trends, price ranges)
 │   ├── main.py            # End-to-end execution pipeline
-├── Makefile           # Automation commands for installation and execution
-├── requirements.txt   # Required Python dependencies
-├── setup.py           # Package installation setup
-└── .envrc             # Environment variable configurations
+├── Makefile               # Automation commands for installation and execution
+├── requirements.txt       # Required Python dependencies
+├── setup.py               # Package installation setup
+├── Group4_BDM.pbix        # Power bi dashboard with quick visualization
+└── .envrc                 # Environment variable configurations
 ```
 
 ## Key Files
@@ -114,6 +115,10 @@ Launch with:
 ```bash
 make streamlit
 ```
+The PowerBI dashboard provides some information like:
+- Total sum of prices for different Panerai collections
+- A breakdown of price distributions across multiple currencies
+
 
 ## Common Issues
 - WSL2 not installed: Follow WSL installation guide
