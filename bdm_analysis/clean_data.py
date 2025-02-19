@@ -13,7 +13,7 @@ def get_fallback_rates():
         'GBP': 1.17,
         'CHF': 0.99,
         'SGD': 0.69,
-        'HKD': 0.12,
+        'HKD': 0.11,
         'CNY': 0.14,
         'KRW': 0.00074,
         'TWD': 0.032,
@@ -22,8 +22,7 @@ def get_fallback_rates():
 
 def convert_prices_to_eur(df):
     """
-    Convertit les prix en euros en utilisant CurrencyConverter quand possible,
-    sinon utilise les taux moyens de 2022.
+    Convertit les prix en euros avec des vérifications strictes.
     """
     c = CurrencyConverter()
     fallback_rates = get_fallback_rates()
@@ -36,40 +35,51 @@ def convert_prices_to_eur(df):
             price = float(row['price'])
             currency = row['currency']
             
-            # Si déjà en EUR, pas besoin de conversion
+            # Si déjà en EUR, vérifier que le prix est réaliste
             if currency == 'EUR':
-                return price
+                return price if 1000 <= price <= 100000 else None
             
             # Date de conversion
             conversion_date = pd.to_datetime(row['life_span_date']).date()
             
             try:
                 # Essai avec CurrencyConverter d'abord
-                return c.convert(price, currency, 'EUR', date=conversion_date)
+                converted_price = c.convert(price, currency, 'EUR', date=conversion_date)
+                
+                # Vérification du résultat
+                if 1000 <= converted_price <= 100000:
+                    # Vérification supplémentaire de variation max de 10%
+                    fallback_price = price * fallback_rates.get(currency, 0)
+                    if abs(converted_price - fallback_price) / fallback_price < 0.1:
+                        return converted_price
             except:
-                # Si échec, utilisation des taux moyens
-                if currency in fallback_rates:
-                    return price * fallback_rates[currency]
-                return None
+                pass
+                
+            # Si on arrive ici, on utilise uniquement le fallback rate
+            if currency in fallback_rates:
+                converted_price = price * fallback_rates[currency]
+                if 1000 <= converted_price <= 100000:
+                    return converted_price
+                    
+            return None
                 
         except Exception as e:
+            print(f"Erreur de conversion pour {row['reference_code']} en {currency}: {e}")
             return None
 
+    # Sauvegarder les prix originaux
+    df['original_price'] = df['price']
+    df['original_currency'] = df['currency']
+    df['conversion_method'] = 'direct'  # Pour EUR
+    
     df['price_eur'] = df.apply(convert_row, axis=1)
     
-    # Statistiques de conversion
-    conversions = {
-        'Total rows': len(df),
-        'Successful conversions': df['price_eur'].notna().sum(),
-        'Failed conversions': df['price_eur'].isna().sum(),
-    }
-    
-    print("\nConversion statistics:")
-    for key, value in conversions.items():
-        print(f"{key}: {value}")
-    
-    success_rate = (conversions['Successful conversions'] / conversions['Total rows']) * 100
-    print(f"Success rate: {success_rate:.1f}%")
+    # Afficher les statistiques par devise
+    print("\nStatistiques de conversion par devise:")
+    for currency in df['currency'].unique():
+        currency_data = df[df['currency'] == currency]
+        success_rate = (currency_data['price_eur'].notna().sum() / len(currency_data)) * 100
+        print(f"{currency}: {success_rate:.1f}% de succès ({currency_data['price_eur'].notna().sum()}/{len(currency_data)})")
     
     return df
 
