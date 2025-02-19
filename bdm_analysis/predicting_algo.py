@@ -3,6 +3,7 @@ import numpy as np
 from datetime import datetime, timedelta
 from sklearn.linear_model import LinearRegression
 import os
+import matplotlib.pyplot as plt
 
 def best_currency_forecast_benefit(df, reference_code):
     """
@@ -54,6 +55,8 @@ def best_currency_forecast_benefit(df, reference_code):
     best_currency = None
     best_benefit = -np.inf  # To compare benefits
     best_forecast_price = None
+    best_group = None
+    best_model = None
     
     # Iterate through each currency
     for currency, group in df_filtered.groupby('currency'):
@@ -94,6 +97,8 @@ def best_currency_forecast_benefit(df, reference_code):
             best_benefit = benefit
             best_currency = currency
             best_forecast_price = y_pred
+            best_group = group
+            best_model = model
     
     # Display result
     if best_currency is None:
@@ -103,5 +108,16 @@ def best_currency_forecast_benefit(df, reference_code):
     print(f"Best currency to buy: {best_currency}")
     print(f"Potential benefit (forecast): {best_benefit:.2f} EUR")
     print(f"Details: last known price = {last_price:.2f} EUR, predicted price = {best_forecast_price:.2f} EUR")
+    
+    # Plot the data and the regression line for the best currency
+    plt.figure(figsize=(10, 6))
+    plt.scatter(best_group['date_dt'], best_group['price_eur'], color='blue', label='Actual Prices')
+    plt.plot(best_group['date_dt'], best_model.predict(best_group[['date_ordinal']]), color='red', label='Regression Line')
+    plt.xlabel('Date')
+    plt.ylabel('Price in EUR')
+    plt.title(f'Price Prediction for {best_currency}')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
     
     return best_currency, best_benefit
