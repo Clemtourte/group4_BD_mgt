@@ -4,10 +4,10 @@ import os
 
 def load_data_from_bigquery():
     """
-    Loads data from BigQuery using GCP credentials.
+    Loads raw data from BigQuery using GCP credentials.
     
     Returns:
-        pd.DataFrame: The retrieved dataset.
+        pd.DataFrame: Raw dataset
     """
     try:
         key_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')

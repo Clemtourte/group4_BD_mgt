@@ -1,15 +1,39 @@
 import pandas as pd
 import numpy as np
 
+def verify_dataset_metrics(df):
+    """
+    Verifies key metrics of the dataset and prints the results.
+    """
+    print("\n🔍 Verifying Dataset Metrics:")
+    
+    # Count unique references
+    n_refs = df['reference_code'].nunique()
+    print(f"\n1️⃣ Number of unique references: {n_refs}")
+    print("\nSample references:")
+    print(df['reference_code'].unique()[:5])
+    
+    # Count unique currencies
+    n_currencies = df['currency'].nunique()
+    print(f"\n2️⃣ Number of unique currencies: {n_currencies}")
+    print("\nAll currencies:")
+    print(df['currency'].unique())
+    
+    # Count unique dates
+    n_dates = df['life_span_date'].nunique()
+    print(f"\n3️⃣ Number of unique dates: {n_dates}")
+    print("\nAll dates:")
+    print(sorted(df['life_span_date'].unique()))
+    
+    return {
+        'n_references': n_refs,
+        'n_currencies': n_currencies,
+        'n_dates': n_dates
+    }
+
 def analyze_collections(df):
     """
     Analyzes collections statistics.
-    
-    Args:
-        df (pd.DataFrame): Cleaned dataframe
-        
-    Returns:
-        pd.DataFrame: Collection-level statistics
     """
     stats = df.groupby('collection').agg({
         'reference_code': 'count',
@@ -22,12 +46,6 @@ def analyze_collections(df):
 def analyze_price_ranges(df):
     """
     Segments watches into price categories and analyzes each segment.
-    
-    Args:
-        df (pd.DataFrame): Cleaned dataframe
-        
-    Returns:
-        pd.DataFrame: Price segment analysis
     """
     df['price_category'] = pd.cut(
         df['price'],
@@ -47,12 +65,6 @@ def analyze_price_ranges(df):
 def analyze_time_trends(df):
     """
     Analyzes trends over time.
-    
-    Args:
-        df (pd.DataFrame): Cleaned dataframe
-        
-    Returns:
-        pd.DataFrame: Time-based trends
     """
     df['year_quarter'] = pd.to_datetime(df['life_span_date']).dt.to_period('Q')
     
@@ -68,14 +80,7 @@ def analyze_time_trends(df):
 def analyze_price_changes(df):
     """
     Analyzes price changes patterns.
-    
-    Args:
-        df (pd.DataFrame): Cleaned dataframe
-        
-    Returns:
-        pd.DataFrame: Price change analysis
     """
-    # Only consider rows with price differences
     price_changes = df[df['price_difference'] != 0].copy()
     
     changes = price_changes.groupby('collection').agg({
@@ -86,15 +91,26 @@ def analyze_price_changes(df):
     changes.columns = ['change_count', 'avg_change', 'min_change', 'max_change', 'models_affected']
     return changes.reset_index()
 
+def create_price_reference_matrix(df):
+    """
+    Creates a matrix of prices by reference and currency.
+    Uses EUR as base currency.
+    """
+    price_matrix = df.pivot_table(
+        index=['reference_code', 'life_span_date'],
+        columns='currency',
+        values='price',
+        aggfunc='first'
+    ).reset_index()
+    
+    # Sort by date and reference
+    price_matrix = price_matrix.sort_values(['reference_code', 'life_span_date'])
+    
+    return price_matrix
+
 def generate_summary_stats(df):
     """
     Generates overall summary statistics.
-    
-    Args:
-        df (pd.DataFrame): Cleaned dataframe
-        
-    Returns:
-        dict: Summary statistics
     """
     summary = {
         'total_models': df['reference_code'].nunique(),
