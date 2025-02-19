@@ -1,6 +1,6 @@
 requirements:
 	@pip freeze | grep -v "bdm_analysis" > requirements_new.txt
-	@if ! cmp -s requirements.txt requirements_new.txt; then mv requirements_new.txt requirements.txt; echo "✅ requirements.txt updated"; else rm requirements_new.txt; echo "🔄 requirements.txt is already up to date"; fi
+	@if ! cmp -s requirements.txt requirements_new.txt; then mv requirements_new.txt requirements.txt; echo "requirements.txt updated"; else rm requirements_new.txt; echo "requirements.txt is already up to date"; fi
 
 install: requirements
 	@if [ requirements.txt -nt .installed ]; then pip install -e . && touch .installed; fi
@@ -16,4 +16,9 @@ clean:
 run: install
 	@python -m bdm_analysis.main
 
+streamlit: install
+	@streamlit run bdm_analysis/streamlit/app.py
+
 all: install clean run
+
+.PHONY: requirements install clean run streamlit all

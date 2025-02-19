@@ -1,11 +1,9 @@
 import pandas as pd
-import numpy as np
-from datetime import datetime
-from typing import Dict, Tuple, List, Optional
+from typing import Dict, List
 
 def calculate_arbitrage_opportunities(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calcule les opportunités d'arbitrage dans les deux sens (EUR -> autre devise et autre devise -> EUR).
+    Calculate arbitrage opportunities in both directions (EUR -> other currency and other currency -> EUR).
     """
     main_currencies = ['EUR', 'USD', 'GBP', 'CHF', 'JPY', 'SGD', 'CNY', 'AED']
     df = df[df['currency'].isin(main_currencies)].copy()
@@ -17,18 +15,15 @@ def calculate_arbitrage_opportunities(df: pd.DataFrame) -> pd.DataFrame:
         for date in ref_data['life_span_date'].unique():
             date_data = ref_data[ref_data['life_span_date'] == date]
             
-            # Vérifier si EUR est présent
             eur_data = date_data[date_data['currency'] == 'EUR']
             if len(eur_data) == 0:
                 continue
                 
             eur_price = eur_data.iloc[0]['price']
             
-            # Vérifier que le prix EUR est réaliste
             if eur_price < 1000 or eur_price > 100000:
                 continue
             
-            # Comparer avec chaque autre devise
             for curr in main_currencies:
                 if curr == 'EUR':
                     continue
@@ -37,17 +32,14 @@ def calculate_arbitrage_opportunities(df: pd.DataFrame) -> pd.DataFrame:
                 if len(curr_data) == 0:
                     continue
                     
-                curr_price = curr_data.iloc[0]['price']  # Prix dans la devise locale
-                curr_price_eur = curr_data.iloc[0]['price_eur']  # Prix converti en EUR
+                curr_price = curr_data.iloc[0]['price']
+                curr_price_eur = curr_data.iloc[0]['price_eur']
                 
-                # Vérifier que le prix converti est réaliste
                 if curr_price_eur < 1000 or curr_price_eur > 100000:
                     continue
                 
-                # Calculer le taux de change effectif
                 exchange_rate = curr_price_eur / curr_price
                 
-                # 1. Arbitrage EUR -> Autre devise
                 if curr_price_eur > eur_price:
                     profit = curr_price_eur - eur_price
                     profit_percentage = (profit / eur_price) * 100
@@ -67,7 +59,6 @@ def calculate_arbitrage_opportunities(df: pd.DataFrame) -> pd.DataFrame:
                             'arbitrage_direction': 'EUR->Foreign'
                         })
                 
-                # 2. Arbitrage Autre devise -> EUR
                 if eur_price > curr_price_eur:
                     profit = eur_price - curr_price_eur
                     profit_percentage = (profit / curr_price_eur) * 100
@@ -92,7 +83,7 @@ def calculate_arbitrage_opportunities(df: pd.DataFrame) -> pd.DataFrame:
 
 def analyze_historical_arbitrage(df: pd.DataFrame, min_profit_threshold: float = 2.0) -> Dict:
     """
-    Analyse historique des opportunités d'arbitrage.
+    Historical analysis of arbitrage opportunities.
     """
     opportunities = calculate_arbitrage_opportunities(df)
     
@@ -124,14 +115,13 @@ def find_stable_arbitrage_pairs(df: pd.DataFrame,
                               min_occurrence: int = 3,
                               min_profit: float = 2.0) -> List[Dict]:
     """
-    Identifie les devises qui offrent des opportunités d'arbitrage stables par rapport à l'EUR.
+    Identify currencies that offer stable arbitrage opportunities relative to EUR.
     """
     opportunities = calculate_arbitrage_opportunities(df)
     
     if opportunities.empty:
         return []
     
-    # Analyser chaque devise
     currency_stats = []
     for currency in opportunities['other_currency'].unique():
         curr_data = opportunities[opportunities['other_currency'] == currency]
@@ -153,54 +143,50 @@ def find_stable_arbitrage_pairs(df: pd.DataFrame,
 
 def generate_arbitrage_report(df: pd.DataFrame) -> str:
     """
-    Génère un rapport détaillé des opportunités d'arbitrage dans les deux sens.
+    Generate a detailed report of arbitrage opportunities in both directions.
     """
     opportunities = calculate_arbitrage_opportunities(df)
     if opportunities.empty:
-        return "Aucune opportunité d'arbitrage trouvée."
+        return "No arbitrage opportunities found."
         
-    report = ["📊 RAPPORT D'ARBITRAGE PANERAI (Bidirectionnel) 📊\n"]
+    report = ["PANERAI ARBITRAGE REPORT\n"]
     
-    # Statistiques globales
-    report.append("1. APERÇU GÉNÉRAL")
-    report.append(f"Nombre total d'opportunités: {len(opportunities)}")
-    report.append(f"Profit moyen: {opportunities['potential_profit_eur'].mean():.2f} EUR")
-    report.append(f"Profit moyen (%): {opportunities['profit_percentage'].mean():.1f}%")
+    report.append("1. GENERAL OVERVIEW")
+    report.append(f"Total opportunities: {len(opportunities)}")
+    report.append(f"Average profit: {opportunities['potential_profit_eur'].mean():.2f} EUR")
+    report.append(f"Average profit (%): {opportunities['profit_percentage'].mean():.1f}%")
     
-    # Statistiques par direction
-    report.append("\n2. ANALYSE PAR DIRECTION")
+    report.append("\n2. DIRECTIONAL ANALYSIS")
     for direction in ['EUR->Foreign', 'Foreign->EUR']:
         dir_opps = opportunities[opportunities['arbitrage_direction'] == direction]
         report.append(f"\n{direction}:")
-        report.append(f"- Nombre d'opportunités: {len(dir_opps)}")
+        report.append(f"- Number of opportunities: {len(dir_opps)}")
         if not dir_opps.empty:
-            report.append(f"- Profit moyen: {dir_opps['potential_profit_eur'].mean():.2f} EUR")
-            report.append(f"- Profit moyen (%): {dir_opps['profit_percentage'].mean():.1f}%")
+            report.append(f"- Average profit: {dir_opps['potential_profit_eur'].mean():.2f} EUR")
+            report.append(f"- Average profit (%): {dir_opps['profit_percentage'].mean():.1f}%")
             
-            # Meilleure opportunité pour cette direction
             best_opp = dir_opps.loc[dir_opps['potential_profit_eur'].idxmax()]
-            report.append(f"\nMeilleure opportunité {direction}:")
-            report.append(f"- Référence: {best_opp['reference_code']}")
-            report.append(f"- Achat: {best_opp['buy_price']:.2f} {best_opp['buy_currency']}")
-            report.append(f"- Vente: {best_opp['sell_price_local']:.2f} {best_opp['sell_currency']}")
+            report.append(f"\nBest opportunity {direction}:")
+            report.append(f"- Reference: {best_opp['reference_code']}")
+            report.append(f"- Buy: {best_opp['buy_price']:.2f} {best_opp['buy_currency']}")
+            report.append(f"- Sell: {best_opp['sell_price_local']:.2f} {best_opp['sell_currency']}")
             report.append(f"- Profit: {best_opp['potential_profit_eur']:.2f} EUR ({best_opp['profit_percentage']:.1f}%)")
-            report.append(f"- Taux de change: 1 EUR = {1/best_opp['exchange_rate']:.4f} {best_opp['sell_currency']}" 
+            report.append(f"- Exchange rate: 1 EUR = {1/best_opp['exchange_rate']:.4f} {best_opp['sell_currency']}" 
                         if direction == 'EUR->Foreign' else 
-                        f"- Taux de change: 1 {best_opp['buy_currency']} = {best_opp['exchange_rate']:.4f} EUR")
+                        f"- Exchange rate: 1 {best_opp['buy_currency']} = {best_opp['exchange_rate']:.4f} EUR")
     
-    # Opportunités actuelles (dernière date)
     latest_date = opportunities['date'].max()
     latest_opps = opportunities[opportunities['date'] == latest_date].nlargest(5, 'profit_percentage')
     
     if not latest_opps.empty:
-        report.append("\n3. OPPORTUNITÉS ACTUELLES (Top 5)")
+        report.append("\n3. CURRENT OPPORTUNITIES (Top 5)")
         report.append(f"\nDate: {latest_date}")
         for _, opp in latest_opps.iterrows():
-            report.append(f"\nRéférence: {opp['reference_code']}")
+            report.append(f"\nReference: {opp['reference_code']}")
             report.append(f"Direction: {opp['arbitrage_direction']}")
-            report.append(f"Achat: {opp['buy_price']:.2f} {opp['buy_currency']}")
-            report.append(f"Vente: {opp['sell_price_local']:.2f} {opp['sell_currency']}")
-            report.append(f"Taux: 1 {opp['buy_currency']} = {opp['exchange_rate']:.4f} EUR")
+            report.append(f"Buy: {opp['buy_price']:.2f} {opp['buy_currency']}")
+            report.append(f"Sell: {opp['sell_price_local']:.2f} {opp['sell_currency']}")
+            report.append(f"Rate: 1 {opp['buy_currency']} = {opp['exchange_rate']:.4f} EUR")
             report.append(f"Profit: {opp['potential_profit_eur']:.2f} EUR ({opp['profit_percentage']:.1f}%)")
     
     return "\n".join(report)

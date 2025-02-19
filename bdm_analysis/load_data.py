@@ -21,12 +21,12 @@ def load_data_from_bigquery():
         df = client.query(query).to_dataframe()
         
         if df.empty:
-            print("⚠️ No data found for this query.")
+            print("No data found for this query.")
         else:
-            print("✅ Data successfully retrieved!")
-            print(f"📊 Retrieved {len(df)} rows")
+            print("Data successfully retrieved!")
+            print(f"Retrieved {len(df)} rows")
         
         return df
     except Exception as e:
-        print(f"❌ Error loading data: {e}")
+        print(f"Error loading data: {e}")
         return None

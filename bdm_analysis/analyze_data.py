@@ -1,28 +1,27 @@
 import pandas as pd
-import numpy as np
 
 def verify_dataset_metrics(df):
     """
-    Vérifie et affiche les métriques clés du dataset.
+    Verify and display key dataset metrics.
     """
-    print("\n🔍 Vérification des métriques du dataset:")
+    print("\nVerifying dataset metrics:")
     
-    # Références uniques
+    # Unique references
     n_refs = df['reference_code'].nunique()
-    print(f"\n1️⃣ Nombre de références uniques: {n_refs}")
-    print("\nExemples de références:")
+    print(f"\n1. Number of unique references: {n_refs}")
+    print("\nReference examples:")
     print(df['reference_code'].unique()[:5])
     
-    # Devises uniques
+    # Unique currencies
     n_currencies = df['currency'].nunique()
-    print(f"\n2️⃣ Nombre de devises uniques: {n_currencies}")
-    print("\nDevises présentes:")
+    print(f"\n2. Number of unique currencies: {n_currencies}")
+    print("\nCurrencies present:")
     print(df['currency'].unique())
     
-    # Dates uniques
+    # Unique dates
     n_dates = df['life_span_date'].nunique()
-    print(f"\n3️⃣ Nombre de dates uniques: {n_dates}")
-    print("\nDates disponibles:")
+    print(f"\n3. Number of unique dates: {n_dates}")
+    print("\nAvailable dates:")
     print(sorted(df['life_span_date'].unique()))
     
     return {
@@ -33,7 +32,7 @@ def verify_dataset_metrics(df):
 
 def analyze_collections(df):
     """
-    Analyse statistique par collection.
+    Statistical analysis by collection.
     """
     stats = df.groupby('collection').agg({
         'reference_code': 'count',
@@ -51,7 +50,7 @@ def analyze_collections(df):
 
 def analyze_price_ranges(df):
     """
-    Segmentation par gamme de prix.
+    Price range segmentation.
     """
     price_bins = [0, 10000, 25000, 50000, float('inf')]
     labels = ['Entry Level', 'Mid Range', 'High End', 'Ultra Luxury']
@@ -78,7 +77,7 @@ def analyze_price_ranges(df):
 
 def analyze_time_trends(df):
     """
-    Analyse des tendances temporelles.
+    Temporal trend analysis.
     """
     df['year_quarter'] = pd.to_datetime(df['life_span_date']).dt.to_period('Q')
     
@@ -99,7 +98,7 @@ def analyze_time_trends(df):
 
 def create_price_reference_matrix(df):
     """
-    Crée une matrice de référence des prix par devise.
+    Create a price reference matrix by currency.
     """
     matrix = df.pivot_table(
         index=['reference_code', 'life_span_date'],
@@ -112,7 +111,7 @@ def create_price_reference_matrix(df):
 
 def analyze_currency_variations(df):
     """
-    Analyse les variations de prix entre devises.
+    Analyze price variations between currencies.
     """
     latest_prices = df.sort_values('life_span_date').groupby('reference_code').last()
     
@@ -130,7 +129,7 @@ def analyze_currency_variations(df):
 
 def generate_summary_stats(df):
     """
-    Génère les statistiques globales du dataset.
+    Generate global dataset statistics.
     """
     summary = {
         'total_models': df['reference_code'].nunique(),

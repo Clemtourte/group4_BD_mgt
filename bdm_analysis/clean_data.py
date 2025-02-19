@@ -4,11 +4,12 @@ from currency_converter import CurrencyConverter
 
 def get_fallback_rates():
     """
-    Taux de conversion moyens pour 2022.
-    Les taux représentent la valeur en EUR d'une unité de devise étrangère.
+    Average conversion rates for 2022.
+    The rates represent the EUR value of one unit of foreign currency.
+    Source BCE: https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html
     """
     return {
-        'USD': 0.95,      # Taux moyen 2022
+        'USD': 0.95,
         'JPY': 0.0073,
         'GBP': 1.17,
         'CHF': 0.99,
@@ -22,7 +23,7 @@ def get_fallback_rates():
 
 def convert_prices_to_eur(df):
     """
-    Convertit les prix en euros avec des vérifications strictes.
+    Convert prices to euros with strict validations.
     """
     c = CurrencyConverter()
     fallback_rates = get_fallback_rates()
@@ -35,27 +36,27 @@ def convert_prices_to_eur(df):
             price = float(row['price'])
             currency = row['currency']
             
-            # Si déjà en EUR, vérifier que le prix est réaliste
+            # If already in EUR, verify price is realistic
             if currency == 'EUR':
                 return price if 1000 <= price <= 100000 else None
             
-            # Date de conversion
+            # Conversion date
             conversion_date = pd.to_datetime(row['life_span_date']).date()
             
             try:
-                # Essai avec CurrencyConverter d'abord
+                # First try with CurrencyConverter
                 converted_price = c.convert(price, currency, 'EUR', date=conversion_date)
                 
-                # Vérification du résultat
+                # Validate result
                 if 1000 <= converted_price <= 100000:
-                    # Vérification supplémentaire de variation max de 10%
+                    # Additional check for max 10% variation
                     fallback_price = price * fallback_rates.get(currency, 0)
                     if abs(converted_price - fallback_price) / fallback_price < 0.1:
                         return converted_price
             except:
                 pass
                 
-            # Si on arrive ici, on utilise uniquement le fallback rate
+            # If we get here, use only fallback rate
             if currency in fallback_rates:
                 converted_price = price * fallback_rates[currency]
                 if 1000 <= converted_price <= 100000:
@@ -64,77 +65,77 @@ def convert_prices_to_eur(df):
             return None
                 
         except Exception as e:
-            print(f"Erreur de conversion pour {row['reference_code']} en {currency}: {e}")
+            print(f"Conversion error for {row['reference_code']} in {currency}: {e}")
             return None
 
-    # Sauvegarder les prix originaux
+    # Save original prices
     df['original_price'] = df['price']
     df['original_currency'] = df['currency']
-    df['conversion_method'] = 'direct'  # Pour EUR
+    df['conversion_method'] = 'direct'  # For EUR
     
     df['price_eur'] = df.apply(convert_row, axis=1)
     
-    # Afficher les statistiques par devise
-    print("\nStatistiques de conversion par devise:")
+    # Display statistics by currency
+    print("\nConversion statistics by currency:")
     for currency in df['currency'].unique():
         currency_data = df[df['currency'] == currency]
         success_rate = (currency_data['price_eur'].notna().sum() / len(currency_data)) * 100
-        print(f"{currency}: {success_rate:.1f}% de succès ({currency_data['price_eur'].notna().sum()}/{len(currency_data)})")
+        print(f"{currency}: {success_rate:.1f}% success ({currency_data['price_eur'].notna().sum()}/{len(currency_data)})")
     
     return df
 
 def clean_data(df):
     """
-    Nettoie le dataset en appliquant des filtres de base et
-    en standardisant les formats.
+    Clean the dataset by applying basic filters and
+    standardizing formats.
     """
-    print("🧹 Starting data cleaning process...")
+    print("Starting data cleaning process...")
     
     df_clean = df.copy()
     initial_rows = len(df_clean)
     
-    # 1. Nettoyage des collections
-    print("1️⃣ Cleaning collections...")
+    # 1. Cleaning collections
+    print("1. Cleaning collections...")
     df_clean = df_clean[~df_clean['collection'].str.contains('HTTPS:', na=False)]
     
-    # 2. Standardisation des champs
-    print("2️⃣ Standardizing fields...")
+    # 2. Standardizing fields
+    print("2. Standardizing fields...")
     df_clean['currency'] = df_clean['currency'].str.strip().str.upper()
     df_clean['collection'] = df_clean['collection'].str.strip()
     df_clean['reference_code'] = df_clean['reference_code'].str.strip()
     
-    # 3. Conversion des dates
-    print("3️⃣ Converting dates...")
+    # 3. Converting dates
+    print("3. Converting dates...")
     df_clean['life_span_date'] = pd.to_datetime(df_clean['life_span_date'], errors='coerce')
     
-    # 4. Suppression des valeurs manquantes critiques
-    print("4️⃣ Handling missing values...")
+    # 4. Removing critical missing values
+    print("4. Handling missing values...")
     df_clean = df_clean.dropna(subset=['price', 'collection', 'reference_code', 'life_span_date'])
     
-    # 5. Nettoyage des prix
-    print("5️⃣ Cleaning prices...")
+    # 5. Cleaning prices
+    print("5. Cleaning prices...")
     df_clean = df_clean[df_clean['price'] > 0]
     df_clean = convert_prices_to_eur(df_clean)
     df_clean = df_clean.dropna(subset=['price_eur'])
     
-    # 6. Colonnes temporelles
-    print("6️⃣ Adding time columns...")
+    # 6. Temporal columns
+    print("6. Adding time columns...")
     df_clean['year'] = df_clean['life_span_date'].dt.year
     df_clean['quarter'] = df_clean['life_span_date'].dt.quarter
     
-    # 7. Suppression des colonnes inutiles
-    print("7️⃣ Removing unnecessary columns...")
+    # 7. Removing unnecessary columns
+    print("7. Removing unnecessary columns...")
     cols_to_drop = [
         'is_new', 'country', 'price_before',
         'price_changed', 'price_percent_change', 'price_difference'
     ]
     df_clean = df_clean.drop(columns=cols_to_drop, errors='ignore')
     
-    # Résumé
+    # Summary
     final_rows = len(df_clean)
     rows_removed = initial_rows - final_rows
-    print(f"\n✅ Cleaning completed!")
-    print(f"📊 Rows removed: {rows_removed} ({rows_removed/initial_rows*100:.1f}%)")
-    print(f"📊 Final dataset: {final_rows} rows")
+    print(f"\nCleaning completed!")
+    print(f"Rows removed: {rows_removed} ({rows_removed/initial_rows*100:.1f}%)")
+    print(f"Final dataset: {final_rows} rows")
     
     return df_clean
